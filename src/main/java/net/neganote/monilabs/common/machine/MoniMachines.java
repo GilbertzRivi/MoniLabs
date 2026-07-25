@@ -597,8 +597,7 @@ public class MoniMachines {
                     .where("N",
                             Predicates.blocks(MoniBlocks.DIMENSIONAL_STABILIZATION_NETHERITE_CASING.get())
                                     .setMinGlobalLimited(226)
-                                    .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(1))
-                                    .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1)))
+                                    .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setPreviewCount(1)))
                     .where("E",
                             Predicates.blocks(MoniBlocks.ELTZ_CASING.get()))
                     .where("A", Predicates.blocks(GCYMBlocks.CASING_ATOMIC.get()))
@@ -658,8 +657,7 @@ public class MoniMachines {
                     .where("b", Predicates.blocks(MoniBlocks.BIOALLOY_CASING.get()))
                     .where("B",
                             Predicates.blocks(MoniBlocks.BIOALLOY_CASING.get()).setMinGlobalLimited(240)
-                                    .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMinGlobalLimited(1))
-                                    .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1)))
+                                    .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMinGlobalLimited(1)))
                     .where("E", Predicates.abilities(PartAbility.INPUT_ENERGY))
                     .build())
             .modelProperty(RecipeLogic.STATUS_PROPERTY, RecipeLogic.Status.IDLE)
