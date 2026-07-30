@@ -712,7 +712,8 @@ public class MoniMachines {
                                                        PartAbility ability, int tier) {
         String name = io == IN ? "target" : "source";
         return registerTieredMachines(registrate, amperage + "a_laser_" + name + "_hatch",
-                (holder, tierInner) -> new LaserHatchPartMachine(holder, io, tierInner, amperage), (tierInner, builder) -> builder
+                (holder, tierInner) -> new LaserHatchPartMachine(holder, io, tierInner, amperage),
+                (tierInner, builder) -> builder
                         .langValue(VNF[tier] + "§r " + FormattingUtil.formatNumbers(amperage) + "§eA§r Laser " +
                                 FormattingUtil.toEnglishName(name) + " Hatch")
                         .rotationState(RotationState.ALL)
