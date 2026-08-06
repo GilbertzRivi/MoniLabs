@@ -1,6 +1,7 @@
-# Moni Labs 0.21.8
+# Moni Labs 0.21.9
 
-* Fix rare error from the TES shader asking for a texture slot it can't get (thanks JenyaRostov)
-* Add auto-complete card support for extended pattern providers (thanks tamer bayar)
-* Add internal static var for an overclocks-as-parallels recipe modifier
-* Make microverse projector renders more colorful, based on the microverse type (thanks JenyaRostov)
+* Fixed stack overflow from TES (thanks Oktawia)
+* Removed maintenance from the creative multis
+* Fixed the advanced chroma sensor hatch crashing the game when attempting to select Teal (thanks Phantom)
+* Add color to microverse rendering
+* Minor stability fixes for the TES regarding team resolution
