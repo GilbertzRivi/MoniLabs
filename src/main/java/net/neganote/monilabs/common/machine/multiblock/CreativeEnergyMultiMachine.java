@@ -2,90 +2,94 @@ package net.neganote.monilabs.common.machine.multiblock;
 
 import com.gregtechceu.gtceu.api.machine.ConditionalSubscriptionHandler;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.trait.NotifiableEnergyContainer;
 import com.gregtechceu.gtceu.common.machine.owner.MachineOwner;
 
 import net.minecraft.server.level.ServerLevel;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 @SuppressWarnings("unused")
 public class CreativeEnergyMultiMachine extends UniqueWorkableElectricMultiblockMachine {
 
-    private static final Set<UUID> ACTIVE_OWNERS = new HashSet<>();
-    private static final Map<UUID, Boolean> PLAYER_CACHE = new HashMap<>();
+    public static final Set<NotifiableEnergyContainer> LOADED_ENERGY_CONTAINERS = Collections
+            .newSetFromMap(new IdentityHashMap<>());
 
-    private final ConditionalSubscriptionHandler creativeEnergySubscription;
+    public boolean isProviding = false;
+
+    private final ConditionalSubscriptionHandler creativeSubscription;
 
     public CreativeEnergyMultiMachine(IMachineBlockEntity holder, Object... args) {
         super(holder, args);
-
-        this.creativeEnergySubscription = new ConditionalSubscriptionHandler(this, this::tickEnableCreativeEnergy,
-                this::isSubscriptionActive);
+        this.creativeSubscription = new ConditionalSubscriptionHandler(this, this::tickSync, this::isFormed);
     }
 
-    public static boolean isCreativeEnergyEnabledFor(UUID playerUUID) {
-        if (ACTIVE_OWNERS.isEmpty()) return false;
-        return PLAYER_CACHE.computeIfAbsent(playerUUID, uuid -> {
-            MachineOwner owner = MachineOwner.getOwner(uuid);
-            if (owner == null) return false;
-            return ACTIVE_OWNERS.stream().anyMatch(owner::isPlayerInTeam);
-        });
+    private void tickSync() {
+        syncCreativeEnergyState(!isDuplicate() && isWorkingEnabled() && recipeLogic.isWorking());
     }
 
-    public static void clearActiveOwners() {
-        ACTIVE_OWNERS.clear();
-        PLAYER_CACHE.clear();
+    public static void registerEnergyContainer(NotifiableEnergyContainer container) {
+        LOADED_ENERGY_CONTAINERS.add(container);
+    }
+
+    public static void unregisterEnergyContainer(NotifiableEnergyContainer container) {
+        LOADED_ENERGY_CONTAINERS.remove(container);
+    }
+
+    @Override
+    public Class<?> getMachineType() {
+        return CreativeEnergyMultiMachine.class;
     }
 
     @Override
     public void onStructureFormed() {
         super.onStructureFormed();
-        enableCreativeEnergy(recipeLogic.isWorking());
-        creativeEnergySubscription.updateSubscription();
+        creativeSubscription.updateSubscription();
+        tickSync();
     }
 
-    public void enableCreativeEnergy(boolean enabled) {
+    public void syncCreativeEnergyState(boolean active) {
         if (!(getLevel() instanceof ServerLevel)) return;
-        UUID ownerUUID = getOwnerUUID();
-        if (ownerUUID == null) {
-            ownerUUID = new UUID(0L, 0L);
+        if (active == this.isProviding) return;
+        this.isProviding = active;
+        for (NotifiableEnergyContainer container : collectContainersInTeamOf(getOwnerUUID())) {
+            container.checkOutputSubscription();
+            container.notifyListeners();
         }
-        boolean changed = enabled ? ACTIVE_OWNERS.add(ownerUUID) : ACTIVE_OWNERS.remove(ownerUUID);
-        if (changed) {
-            PLAYER_CACHE.clear();
-        }
+    }
+
+    private static List<NotifiableEnergyContainer> collectContainersInTeamOf(UUID teamMemberUUID) {
+        return LOADED_ENERGY_CONTAINERS.stream()
+                .filter(container -> {
+                    UUID containerOwnerUUID = container.getMachine().getOwnerUUID();
+                    if (containerOwnerUUID == null) return false;
+                    MachineOwner containerOwner = MachineOwner.getOwner(containerOwnerUUID);
+                    return containerOwner != null && containerOwner.isPlayerInTeam(teamMemberUUID);
+                })
+                .toList();
     }
 
     @Override
     public void onUnload() {
         super.onUnload();
-        enableCreativeEnergy(false);
-    }
-
-    private void tickEnableCreativeEnergy() {
-        enableCreativeEnergy(recipeLogic.isWorking());
-    }
-
-    private Boolean isSubscriptionActive() {
-        return isFormed();
+        creativeSubscription.unsubscribe();
+        syncCreativeEnergyState(false);
     }
 
     @Override
     public void setWorkingEnabled(boolean isWorkingAllowed) {
         super.setWorkingEnabled(isWorkingAllowed);
-        if (!isWorkingAllowed) {
-            enableCreativeEnergy(false);
-        }
+        syncCreativeEnergyState(!isDuplicate() && isWorkingEnabled() && recipeLogic.isWorking());
     }
 
     @Override
     public void onStructureInvalid() {
         super.onStructureInvalid();
-        enableCreativeEnergy(false);
-        creativeEnergySubscription.unsubscribe();
+        creativeSubscription.unsubscribe();
+        syncCreativeEnergyState(false);
     }
 }

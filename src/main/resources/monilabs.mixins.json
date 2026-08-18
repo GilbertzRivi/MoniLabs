@@ -6,28 +6,32 @@
   "plugin": "net.neganote.monilabs.mixin.MoniMixinPlugin",
   "refmap": "mixins.monilabs.refmap.json",
   "mixins": [
-    "DataAccessHatchMixin",
+    "gt.DataAccessHatchMixin",
     "KubeJSPluginsMixin",
-    "NotifiableEnergyContainerMixin",
-    "OpticalDataHatchMixin",
-    "PowerSubstationMachineMixin",
+    "gt.NotifiableEnergyContainerMixin",
+    "gt.OpticalDataHatchMixin",
+    "gt.PowerSubstationMachineMixin",
     "aae.MixinCraftingJobStatusPacketCtorShim",
     "aae.MixinCraftingServiceAAE",
     "aae.MixinEncodedPatternItemShim",
     "aae.MixinGuiTextShim",
     "aae.MixinPatternDetailsHelperShim",
-    "aae.MixinProcessingPatternItemShim"
+    "eae.MixinEAERegistryHandler",
+    "aae.MixinProcessingPatternItemShim",
+    "ae2wtlib.MixinCraftAmountMenuShim"
   ],
   "client":
   [
-    "TranslucentRenderMixin",
-    "ShaderChunkRendererMixin",
-    "DefaultChunkRendererMixin",
-    "ShaderLoaderMixin",
-    "GameRendererMixin",
-    "ProgramMixin",
+    "blackhole.TranslucentRenderMixin",
+    "blackhole.ShaderChunkRendererMixin",
+    "blackhole.DefaultChunkRendererMixin",
+    "blackhole.ShaderLoaderMixin",
+    "blackhole.GameRendererMixin",
+    "microverses.ProgramMixin",
     "accessor.TerrainRenderPassAccessor",
-    "accessor.ShaderChunkRendererAccessor"
+    "accessor.ShaderChunkRendererAccessor",
+    "microverses.IrisVertexFormatsMixin",
+    "microverses.ExtendedShaderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

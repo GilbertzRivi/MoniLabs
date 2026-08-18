@@ -10,8 +10,6 @@ import net.irisshaders.iris.Iris;
 import net.irisshaders.iris.shaderpack.materialmap.WorldRenderingSettings;
 import net.irisshaders.iris.uniforms.CapturedRenderingState;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.blockentity.TheEndPortalRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.block.Blocks;
@@ -74,7 +72,7 @@ public class MicroverseProjectorRender extends
 
         int tier = projector.getProjectorTier();
         Microverse microverse = projector.getMicroverse();
-        // RGB. Left - right further away from player - closer
+        // RGB. Left -> right: further away from player -> closer
         Vector4i colors = switch (microverse) {
             case NONE -> new Vector4i(0, 0, 0, 0);
             case NORMAL -> new Vector4i(0xBDB3FF, 0x196E5B, 0x6B41E8, 0x20A37C);
@@ -251,7 +249,7 @@ public class MicroverseProjectorRender extends
         // Send buffer data, clean up
         VertexConsumer consumer;
         if (GTCEu.isModLoaded(GTValues.MODID_OCULUS) && Iris.getCurrentPack().isPresent()) {
-            consumer = buffer.getBuffer(RenderType.entitySolid(TheEndPortalRenderer.END_PORTAL_LOCATION));
+            consumer = buffer.getBuffer(MoniRenderTypes.END_PORTAL_COLORED_IRIS);
         } else {
             consumer = buffer.getBuffer(MoniRenderTypes.END_PORTAL_COLORED);
         }
